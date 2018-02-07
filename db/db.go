@@ -114,7 +114,7 @@ func CreateTodo(name string) (int64, error) {
 	return Create(query, sql.Named("Name", name))
 }
 
-func ReadEmployees() (int, error) {
+func Read(query string) (*sql.Rows, error) {
 	ctx := context.Background()
 
 	// Check if database is alive.
@@ -123,19 +123,25 @@ func ReadEmployees() (int, error) {
 		log.Fatal("Error pinging database: " + err.Error())
 	}
 
-	tsql := fmt.Sprintf("SELECT Id, Name FROM [dbo].[Todos];")
-
 	// Execute query
-	rows, err := db.QueryContext(ctx, tsql)
+	// return *sql.Rows, Error
+	return db.QueryContext(ctx, query)
+
+	//Read All
+
+	//Read One
+}
+
+func ReadEmployees() (int, error) {
+	var count int = 0
+
+	rows, err := Read("SELECT * FROM [dbo].[Todos]")
+
 	if err != nil {
 		log.Fatal("Error reading rows: " + err.Error())
 		return -1, err
 	}
-
 	defer rows.Close()
-
-	var count int = 0
-
 	// Iterate through the result set.
 	for rows.Next() {
 		var name string
@@ -151,7 +157,6 @@ func ReadEmployees() (int, error) {
 		fmt.Printf("ID: %d, Name: %s\n", id, name)
 		count++
 	}
-
 	return count, nil
 }
 
