@@ -126,10 +126,31 @@ func Read(query string) (*sql.Rows, error) {
 	// Execute query
 	// return *sql.Rows, Error
 	return db.QueryContext(ctx, query)
+}
 
-	//Read All
+func Update(name string, id int) (int64, error) {
+	ctx := context.Background()
 
-	//Read One
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		log.Fatal("Error pinging database: " + err.Error())
+	}
+
+	tsql := fmt.Sprintf("UPDATE [dbo].[Todos] SET Name = @Name WHERE Id = @Id")
+
+	// Execute non-query with named parameters
+	result, err := db.ExecContext(
+		ctx,
+		tsql,
+		sql.Named("Name", name),
+		sql.Named("Id", id))
+	if err != nil {
+		log.Fatal("Error updating row: " + err.Error())
+		return -1, err
+	}
+
+	return result.LastInsertId()
 }
 
 func ReadEmployees() (int, error) {
